@@ -25,16 +25,19 @@ namespace Apriori.App
         private static void Do()
         {
             int[] fake = { 1, 2, 3, 4 };
-            int[] fake1 = { 1, 2, 3, 4, 5, 6 };
-            int[] fake2 = { 1, 2, 4, 5 };
+            int[] fake1 = { 2, 3, 4 };
+            //int[] fake2 = { 1, 2, 4, 5 };
             var tree = new HashTree(4);
 
             tree.Add(fake);
             tree.Add(fake1);
-            tree.Add(fake2);
+            //tree.Add(fake2);
 
-            Node[] nodes = tree.GetNodesByDeep(3).ToArray();
-            Node[][] variation = nodes[0].GetAllVariations(3).ToArray();
+            //Node[] nodes = tree.GetNodesByDeep(3).ToArray();
+            //Node[][] variation = nodes[0].GetAllVariations(3).ToArray();
+
+            var apriori = new Apriori(tree, 3, 3);
+            var sets = apriori.GetFrequentSets();
         }
     }
 }
