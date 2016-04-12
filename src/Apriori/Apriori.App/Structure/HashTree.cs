@@ -9,6 +9,8 @@ namespace Apriori.App.Structure
         private readonly int _maxSize;
         private readonly Node _nodes = new Node(0);
 
+        public Node Root => _nodes;
+
         public HashTree(int maxSize)
         {
             _maxSize = maxSize;
@@ -54,58 +56,6 @@ namespace Apriori.App.Structure
             }
             
         }
-
-
-        private void _Set(int[] input)
-        {
-            int max = input.Length > _maxSize ? _maxSize : input.Length;
-
-            if (max < 2)
-                return;
-
-            int current = 1;
-            int index = 0;
-
-            Node c = _nodes;
-            Node level = c;
-
-            while (current < max)
-            {
-                for (int i = current; i < input.Length; i++)
-                {
-                    int first = input[index];
-                    int next = input[i];
-
-                    if (level.ContainsKey(first))
-                        level[first].Add(next);
-
-                    if (i == input.Length - 1)
-                    {
-                        index++;
-                        i = index;
-
-                        if (i + 1 == input.Length)
-                            break;
-                    }
-                }
-
-                current++;
-
-                if (current == max)
-                {
-                    current = 1;
-                    level = c = c.First().Value;
-                }
-                else
-                {
-                    int key = input[current - 2];
-                    level = c[key];
-                }
-
-                index = current - 1;
-
-
-            }
-        }
+        
     }
 }

@@ -32,6 +32,9 @@ namespace Apriori.App
             tree.Add(fake);
             tree.Add(fake1);
             tree.Add(fake2);
+
+            Node[] nodes = tree.GetNodesByDeep(3).ToArray();
+            Node[][] variation = nodes[0].GetAllVariations(3).ToArray();
         }
     }
 }

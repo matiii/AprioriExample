@@ -20,5 +20,10 @@ namespace Apriori.App.Structure
             else
                 this[key].Attempts++;
         }
+
+        public override string ToString()
+        {
+            return $"[Key: {Key}] [Attempts: {Attempts}]";
+        }
     }
 }

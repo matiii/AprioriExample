@@ -46,7 +46,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structure\HashTree.cs" />
+    <Compile Include="Structure\HashTreeExtensions.cs" />
     <Compile Include="Structure\Node.cs" />
+    <Compile Include="Structure\NodeExtensions.cs" />
     <Compile Include="Structure\Task.cs" />
   </ItemGroup>
   <ItemGroup>
