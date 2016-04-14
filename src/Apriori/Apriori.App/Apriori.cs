@@ -12,12 +12,14 @@ namespace Apriori.App
         private readonly HashTree _tree;
         private readonly int _minSup;
         private readonly int _maxSize;
+        private readonly double _minConf;
 
-        public Apriori(HashTree tree, int minSup, int maxSize)
+        public Apriori(HashTree tree, int minSup, int maxSize, double minConf)
         {
             _tree = tree;
             _minSup = minSup;
             _maxSize = maxSize;
+            _minConf = minConf;
         }
 
         public FrequentSets[] GetFrequentSets()
@@ -45,7 +47,6 @@ namespace Apriori.App
             return list.ToArray();
         }
 
-        //TODO: check is it working
         public FrequentItem[] GetFrequentItems(int key)
         {
             var items = new List<FrequentItem>();
@@ -71,7 +72,7 @@ namespace Apriori.App
                 if (node.Key == key)
                     break;
 
-                if (!node.Value.ContainsKey(key))
+                if (!node.Value.ContainsKey(key) || node.Value[key].Attempts < _minSup)
                     continue;
 
                 items.Add(new FrequentItem { Source = key, Item = node.Key, Attempts = node.Value[key].Attempts });
@@ -80,5 +81,72 @@ namespace Apriori.App
             return items.OrderByDescending(x => x.Attempts).ToArray();
         }
 
+        public AssociationRule[] GetAssociationRules()
+        {
+            var items = new List<AssociationRule>();
+
+            FrequentSets[] sets = GetFrequentSets();
+
+            foreach (var set in sets.Where(x => x.Depth > 1))
+            {
+                AssociationRule[] rules = GetAllVariationsOfSet(set);
+                items.AddRange(rules.Where(x => GetConfidence(x) >= _minConf));
+            }
+
+            return items.ToArray();
+        }
+
+        private double GetConfidence(AssociationRule rule)
+        {
+            Node current = _tree.Root;
+
+            foreach (var l in rule.Left)
+                current = current[l];
+
+            double leftSupport = current.Attempts;
+
+            current = _tree.Root;
+
+            foreach (var r in rule.Right)
+                current = current[r];
+
+            double rightSupport = current.Attempts;
+
+            rule.Confidence = leftSupport/rightSupport;
+            return rule.Confidence;
+        }
+
+        private AssociationRule[] GetAllVariationsOfSet(FrequentSets set)
+        {
+            int left = 1;
+            int right = set.Set.Length - 1;
+
+            var rules = new List<AssociationRule>();
+
+            while (right != 0)
+            {
+                rules.Add(new AssociationRule
+                {
+                    Left = set.Set.Take(left).ToArray(),
+                    Right = set.Set.Skip(left).Take(right).ToArray()
+                });
+
+                left++;
+                right--;
+            }
+
+            int length = rules.Count;
+
+            for (int i = 0; i < length; i++)
+            {
+                rules.Add(new AssociationRule
+                {
+                    Left = rules[i].Right,
+                    Right = rules[i].Left
+                });
+            }
+
+            return rules.ToArray();
+        }
     }
 }
