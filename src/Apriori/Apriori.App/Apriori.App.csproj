@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Apriori.cs" />
+    <Compile Include="FrequentItem.cs" />
     <Compile Include="FrequentSets.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
