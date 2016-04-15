@@ -12,9 +12,7 @@ namespace Apriori.App
     {
         static void Main(string[] args)
         {
-            WriteLine("Projekt 1 | ADD");
-            WriteLine("Mateusz Mazurek s12657 | Filip Stybel s89..");
-            WriteLine("Repo: https://github.com/matiii/AprioriExample");
+            Print(null, null);
 
             try
             {
@@ -30,6 +28,22 @@ namespace Apriori.App
             ReadKey();
         }
 
+        private static void Print(int? current, int? toProcess)
+        {
+            Clear();
+            WriteLine("Projekt 1 | ADD");
+            WriteLine("Mateusz Mazurek s12657 | Filip Stybel s89..");
+            WriteLine("Repo: https://github.com/matiii/AprioriExample");
+
+            if (current.HasValue && toProcess.HasValue)
+            {
+                WriteLine();
+                WriteLine();
+                WriteLine($"Process: {current.Value}/{toProcess.Value}");
+            }
+        }
+
+
         private static void Do()
         {
             var reader = new FileReader();
@@ -38,8 +52,12 @@ namespace Apriori.App
 
             var tree = new HashTree(4);
 
-            foreach (var data in dataSet)
-                tree.Add(data);
+            for (int i = 0; i < dataSet.Length; i++)
+            {
+                Print(i+1, dataSet.Length);
+                tree.Add(dataSet[i]);
+            }
+            
 
 
             //Node[] nodes = tree.GetNodesByDeep(3).ToArray();
