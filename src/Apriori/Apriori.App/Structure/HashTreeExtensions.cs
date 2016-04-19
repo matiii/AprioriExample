@@ -11,10 +11,10 @@ namespace Apriori.App.Structure
         /// <param name="tree">Source</param>
         /// <param name="moreOrEqual">Length of depth</param>
         /// <returns></returns>
-        public static IEnumerable<Node> GetNodesByDeep(this HashTree tree, int moreOrEqual)
-        {
-            return from node in tree.Root where HasDepth(node, moreOrEqual) select node.Value;
-        }
+        //public static IEnumerable<Node> GetNodesByDeep(this HashTree tree, int moreOrEqual)
+        //{
+        //    return from node in tree.Root where HasDepth(node, moreOrEqual) select node.Value;
+        //}
 
         private static bool HasDepth(KeyValuePair<int, Node> node, int moreOrEqual)
         {

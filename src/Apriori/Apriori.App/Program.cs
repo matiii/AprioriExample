@@ -16,7 +16,8 @@ namespace Apriori.App
 
             try
             {
-                Do();
+                //Do();
+                MakeAllCombination();
             }
             catch (Exception ex)
             {
@@ -50,12 +51,12 @@ namespace Apriori.App
 
             int[][] dataSet = reader.Read("retail.dat.txt");
 
-            var tree = new HashTree(4);
+            //var tree = new HashTree(4);
 
             for (int i = 0; i < dataSet.Length; i++)
             {
                 Print(i+1, dataSet.Length);
-                tree.Add(dataSet[i]);
+                //tree.Add(dataSet[i]);
             }
             
 
@@ -63,10 +64,42 @@ namespace Apriori.App
             //Node[] nodes = tree.GetNodesByDeep(3).ToArray();
             //Node[][] variation = nodes[0].GetAllVariations(3).ToArray();
 
-            var apriori = new Apriori(tree, 3, 3, 0.6);
-            var sets = apriori.GetFrequentSets();
-            var items = apriori.GetFrequentItems(4);
-            var rules = apriori.GetAssociationRules();
+            //var apriori = new Apriori(tree, 3, 3, 0.6);
+            //var sets = apriori.GetFrequentSets();
+            //var items = apriori.GetFrequentItems(4);
+            //var rules = apriori.GetAssociationRules();
         }
+
+
+
+        private static void MakeAllCombination()
+        {
+            var allValues = new List<string> { "A1", "A2", "A3", "B1", "B2", "C1" };
+            var result = produceEnumeration(allValues).ToList();
+
+        }
+
+
+        private static IEnumerable<int> constructSetFromBits(int i)
+        {
+            for (int n = 0; i != 0; i /= 2, n++)
+            {
+                if ((i & 1) != 0)
+                    yield return n;
+            }
+        }
+
+        
+
+        private static IEnumerable<List<string>> produceEnumeration(List<string> allValues)
+        {
+            for (int i = 0; i < (1 << allValues.Count); i++)
+            {
+                yield return
+                    constructSetFromBits(i).Select(n => allValues[n]).ToList();
+            }
+        }
+        
+
     }
 }
