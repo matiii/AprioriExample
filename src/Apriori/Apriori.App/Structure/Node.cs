@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Apriori.App.Structure
@@ -6,7 +7,6 @@ namespace Apriori.App.Structure
     class Node : Dictionary<int, Node>
     {
         private readonly List<Leaf> _leafs = new List<Leaf>();
-        private readonly List<int> _elements = new List<int>();
 
         private readonly int _maxSize;
 
@@ -15,7 +15,6 @@ namespace Apriori.App.Structure
         public int Key { get; }
 
         public Leaf[] Leafs => _leafs.ToArray();
-        public int[] Elements => _elements.ToArray();
         public bool IsRoot => Parent == null;
 
         public Node(int maxSize) //set root
@@ -35,9 +34,25 @@ namespace Apriori.App.Structure
 
         public void Add(int[] elements)
         {
+            var addedKeys = new List<int>();
+
+            for (int i = 0; i < elements.Length; i++)
+            {
+                int key = GetHashCode(elements[i]);
+
+                if (addedKeys.Contains(key)) continue;
+                
+                addedKeys.Add(key);
+                
+                Process(elements.Skip(i).ToArray());                    
+            }
+        }
+
+        private void Process(int[] elements)
+        {
             var que = new Queue<Node>();
             que.Enqueue(this);
-            
+
             while (que.Count > 0)
             {
                 var current = que.Dequeue();
@@ -45,22 +60,27 @@ namespace Apriori.App.Structure
                 int element = elements[current.Level];
                 int key = GetHashCode(element);
 
-                if (current.ContainsKey(key))
+                Node node;
+
+                if (!current.ContainsKey(key))
                 {
-                                                        
+                    node = new Node(current, elements, _maxSize);
+                    current.Add(key, node);
                 }
                 else
-                {
-                    current.Add(key, new Node(current, elements, _maxSize));
-                }
-            }
+                    node = current[key];
 
-            
+                if (node.Level < _maxSize && node.Level < elements.Length)
+                    que.Enqueue(node);
+
+                node.GenerateLeafs(elements.Skip(current.Level).ToArray());
+            }
         }
 
-        public void GenerateLeafs(int[] elements, bool filter = true)
+        //TODO: optimize
+        public void GenerateLeafs(int[] elements)
         {
-            int[] items = filter ? GetNodeElements(elements).ToArray() : elements;
+            int[] items = GetNodeElements(elements).ToArray();
 
             var que = new Queue<List<int>>();
 
@@ -82,15 +102,26 @@ namespace Apriori.App.Structure
                 }
                 else
                 {
-                    int index = job.Count - 1;
+                    int index = Array.IndexOf(items, job.Last()) + 1;
 
-                    for (int i = index; i < elements.Length; i++)
-                        que.Enqueue(new List<int>(job) { elements[i] });
+                    for (int i = index; i < items.Length; i++)
+                        que.Enqueue(new List<int>(job) { items[i] });
                 }
             }
         }
 
-        private IEnumerable<int> GetNodeElements(int[] elements) => elements.Where(element => GetHashCode(element) == Key);
+        private int[] GetNodeElements(int[] elements)
+        {
+            List<int> result = elements.Where(element => GetHashCode(element) == Key).ToList();
+
+            if (!IsRoot)
+            {
+                foreach (var leaf in Parent.Leafs)
+                    result.AddRange(leaf.Elements);
+            }
+
+            return result.Clean();
+        }
 
         private int GetHashCode(int element) => element % _maxSize;
 

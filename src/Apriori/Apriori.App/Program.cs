@@ -16,8 +16,7 @@ namespace Apriori.App
 
             try
             {
-                //Do();
-                MakeAllCombination();
+                Do();
             }
             catch (Exception ex)
             {
@@ -51,12 +50,15 @@ namespace Apriori.App
 
             int[][] dataSet = reader.Read("retail.dat.txt");
 
-            //var tree = new HashTree(4);
+            //int[][] dataSet = {new[] {1, 2, 3, 4}};
+
+
+            var tree = new HashTree(3);
 
             for (int i = 0; i < dataSet.Length; i++)
             {
                 Print(i+1, dataSet.Length);
-                //tree.Add(dataSet[i]);
+                tree.Add(dataSet[i]);
             }
             
 
@@ -70,35 +72,7 @@ namespace Apriori.App
             //var rules = apriori.GetAssociationRules();
         }
 
-
-
-        private static void MakeAllCombination()
-        {
-            var allValues = new List<string> { "A1", "A2", "A3", "B1", "B2", "C1" };
-            var result = produceEnumeration(allValues).ToList();
-
-        }
-
-
-        private static IEnumerable<int> constructSetFromBits(int i)
-        {
-            for (int n = 0; i != 0; i /= 2, n++)
-            {
-                if ((i & 1) != 0)
-                    yield return n;
-            }
-        }
-
         
-
-        private static IEnumerable<List<string>> produceEnumeration(List<string> allValues)
-        {
-            for (int i = 0; i < (1 << allValues.Count); i++)
-            {
-                yield return
-                    constructSetFromBits(i).Select(n => allValues[n]).ToList();
-            }
-        }
         
 
     }
