@@ -34,22 +34,6 @@ namespace Apriori.App.Structure
 
         public void Add(int[] elements)
         {
-            var addedKeys = new List<int>();
-
-            for (int i = 0; i < elements.Length; i++)
-            {
-                int key = GetHashCode(elements[i]);
-
-                if (addedKeys.Contains(key)) continue;
-                
-                addedKeys.Add(key);
-                
-                Process(elements.Skip(i).ToArray());                    
-            }
-        }
-
-        private void Process(int[] elements)
-        {
             var que = new Queue<Node>();
             que.Enqueue(this);
 
@@ -57,35 +41,47 @@ namespace Apriori.App.Structure
             {
                 var current = que.Dequeue();
 
-                int element = elements[current.Level];
-                int key = GetHashCode(element);
+                var adddedKeys = new List<int>();
 
-                Node node;
-
-                if (!current.ContainsKey(key))
+                for (int i = 0; i < elements.Length - current.Level; i++)
                 {
-                    node = new Node(current, elements, _maxSize);
-                    current.Add(key, node);
+                    int[] items = elements.Skip(i).ToArray();
+
+
+                    int element = items[current.Level];
+                    int key = GetHashCode(element);
+
+                    if (adddedKeys.Contains(key)) continue;
+                    
+                    adddedKeys.Add(key);                        
+
+                    Node node;
+
+                    if (!current.ContainsKey(key))
+                    {
+                        node = new Node(current, items, _maxSize);
+                        current.Add(key, node);
+                    }
+                    else
+                        node = current[key];
+
+                    if (node.Level < _maxSize && node.Level < items.Length)
+                        que.Enqueue(node);
+
+                    node.GenerateLeafs(elements);
                 }
-                else
-                    node = current[key];
-
-                if (node.Level < _maxSize && node.Level < elements.Length)
-                    que.Enqueue(node);
-
-                node.GenerateLeafs(elements.Skip(current.Level).ToArray());
             }
         }
 
-        //TODO: optimize
+
         public void GenerateLeafs(int[] elements)
         {
-            int[] items = GetNodeElements(elements).ToArray();
+            int[] items = GetNodeElements(elements);
 
             var que = new Queue<List<int>>();
 
-            foreach (var item in items)
-                que.Enqueue(new List<int> { item });
+            foreach (var element in elements)
+                que.Enqueue(new List<int> { element });
 
             while (que.Count > 0)
             {
@@ -93,6 +89,9 @@ namespace Apriori.App.Structure
 
                 if (job.Count == Level)
                 {
+                    if (Parent.Leafs.Length > 0 && !Parent.Leafs.Any(x => x.Exist(job.Take(Level - 1).ToArray()))) continue;
+                    if (!items.Contains(job.Last())) continue;
+
                     var leaf = _leafs.FirstOrDefault(x => x.Exist(job.ToArray()));
 
                     if (leaf == null)
@@ -102,26 +101,16 @@ namespace Apriori.App.Structure
                 }
                 else
                 {
-                    int index = Array.IndexOf(items, job.Last()) + 1;
+                    int index = Array.IndexOf(elements, job.Last()) + 1;
 
-                    for (int i = index; i < items.Length; i++)
-                        que.Enqueue(new List<int>(job) { items[i] });
+                    for (int i = index; i < elements.Length; i++)
+                        que.Enqueue(new List<int>(job) { elements[i] });
                 }
             }
         }
 
-        private int[] GetNodeElements(int[] elements)
-        {
-            List<int> result = elements.Where(element => GetHashCode(element) == Key).ToList();
-
-            if (!IsRoot)
-            {
-                foreach (var leaf in Parent.Leafs)
-                    result.AddRange(leaf.Elements);
-            }
-
-            return result.Clean();
-        }
+        private int[] GetNodeElements(int[] elements) => elements.Where(element => GetHashCode(element) == Key).ToArray();
+        
 
         private int GetHashCode(int element) => element % _maxSize;
 

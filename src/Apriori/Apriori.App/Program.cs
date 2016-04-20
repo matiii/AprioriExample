@@ -50,7 +50,7 @@ namespace Apriori.App
 
             int[][] dataSet = reader.Read("retail.dat.txt");
 
-            //int[][] dataSet = {new[] {1, 2, 3, 4}};
+            //int[][] dataSet = {new[] {1, 2, 3, 4}, new[] {1, 2, 3, 4}};
 
 
             var tree = new HashTree(3);
