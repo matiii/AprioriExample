@@ -89,8 +89,8 @@ namespace Apriori.App.Structure
 
                 if (job.Count == Level)
                 {
-                    if (Parent.Leafs.Length > 0 && !Parent.Leafs.Any(x => x.Exist(job.Take(Level - 1).ToArray()))) continue;
                     if (!items.Contains(job.Last())) continue;
+                    if (Parent.Leafs.Length > 0 && !Parent.Leafs.Any(x => x.Exist(job.Take(Level - 1).ToArray()))) continue;
 
                     var leaf = _leafs.FirstOrDefault(x => x.Exist(job.ToArray()));
 

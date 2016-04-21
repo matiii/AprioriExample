@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace Apriori.App
             ReadKey();
         }
 
-        private static void Print(int? current, int? toProcess)
+        private static void Print(int? current, int? toProcess, int length = 0, double time = 0)
         {
             Clear();
             WriteLine("Projekt 1 | ADD");
@@ -39,6 +40,7 @@ namespace Apriori.App
             {
                 WriteLine();
                 WriteLine();
+                WriteLine($"Element of {length} length was processed by {time.ToString("F")} sec.");
                 WriteLine($"Process: {current.Value}/{toProcess.Value}");
             }
         }
@@ -55,12 +57,16 @@ namespace Apriori.App
 
             var tree = new HashTree(3);
 
+            var stopWatch = new Stopwatch();
             for (int i = 0; i < dataSet.Length; i++)
             {
-                Print(i+1, dataSet.Length);
+                stopWatch.Start();
                 tree.Add(dataSet[i]);
+                stopWatch.Stop();
+                Print(i + 1, dataSet.Length, dataSet[i].Length, stopWatch.Elapsed.TotalSeconds);
+                stopWatch.Restart();
             }
-            
+
 
 
             //Node[] nodes = tree.GetNodesByDeep(3).ToArray();

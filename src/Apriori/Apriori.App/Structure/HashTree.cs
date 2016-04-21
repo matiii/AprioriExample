@@ -16,5 +16,11 @@
             _nodes.Add(input);
         }
 
+        //TODO
+        public void Merge(HashTree tree)
+        {
+            
+        }
+
     }
 }
