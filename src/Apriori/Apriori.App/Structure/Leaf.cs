@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Apriori.App.Structure
 {
+    [Serializable]
     class Leaf
     {
         public int[] Elements { get; set; }

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Apriori.App.Structure
 {
     [Serializable]
-    class Node : Dictionary<int, Node>
+    class Node : Dictionary<int, Node>, ISerializable
     {
         private readonly List<Leaf> _leafs = new List<Leaf>();
         private readonly HashSet<int> _uniqueValues = new HashSet<int>();
@@ -19,6 +20,27 @@ namespace Apriori.App.Structure
         public Leaf[] Leafs => _leafs.ToArray();
 
         public bool IsRoot => Parent == null;
+
+        protected Node(SerializationInfo info, StreamingContext context): base(info, context)
+        {
+            _leafs        = (List<Leaf>) info.GetValue(nameof(_leafs), typeof(List<Leaf>));
+            _uniqueValues = (HashSet<int>) info.GetValue(nameof(_uniqueValues), typeof(HashSet<int>));
+            _maxSize      = (int) info.GetValue(nameof(_maxSize), typeof(int));
+            Parent        = (Node) info.GetValue(nameof(Parent), typeof(Node));
+            Level         = (int) info.GetValue(nameof(Level), typeof(int));
+            Key           = (int) info.GetValue(nameof(Key), typeof(int));
+        }
+
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue(nameof(_leafs), _leafs);
+            info.AddValue(nameof(_uniqueValues), _uniqueValues);
+            info.AddValue(nameof(_maxSize), _maxSize);
+            info.AddValue(nameof(Parent), Parent);
+            info.AddValue(nameof(Level), Level);
+            info.AddValue(nameof(Key), Key);
+        }
 
         public Node(int maxSize) //set root
         {
@@ -98,8 +120,6 @@ namespace Apriori.App.Structure
 
                 if (job.Count == Level)
                 {
-                    if (!items.Contains(job.Last())) continue;
-
                     var leaf = _leafs.FirstOrDefault(x => x.Exist(job.ToArray()));
 
                     if (leaf == null)
