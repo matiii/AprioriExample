@@ -150,7 +150,6 @@ namespace Apriori.App.Structure
 
         public bool ContainsElement(int element) => _uniqueValues.Contains(element);
 
-
         private void AddLeaf(Leaf leaf)
         {
             _leafs.Add(leaf);
@@ -161,7 +160,7 @@ namespace Apriori.App.Structure
 
         private int[] GetParentElements(int[] elements) => elements.Where(x => Parent.ContainsElement(x)).ToArray();
 
-        private int GetHashCode(int element) => element % _maxSize;
+        public int GetHashCode(int element) => element % _maxSize;
 
         public override string ToString()
         {

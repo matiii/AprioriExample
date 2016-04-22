@@ -10,91 +10,133 @@ namespace Apriori.App
     class Apriori
     {
         private readonly HashTree _tree;
-        private readonly int _minSup;
-        private readonly int _maxSize;
-        private readonly double _minConf;
 
-        public Apriori(HashTree tree, int minSup, int maxSize, double minConf)
+        public Apriori(HashTree tree)
         {
             _tree = tree;
-            _minSup = minSup;
-            _maxSize = maxSize;
-            _minConf = minConf;
         }
 
-        public FrequentSets[] GetFrequentSets()
+        //TODO
+        public Leaf[] GetFrequentSets(double minSupport, bool maxSize = false, int size = 0)
         {
-            var list = new List<FrequentSets>();
+            var list = new List<Leaf>();
 
-            //for (int i = 1; i <= _maxSize; i++)
-            //{
-            //    foreach (var node in _tree.GetNodesByDeep(i))
-            //    {
-            //        //IEnumerable<Node[]> variations = node.GetAllVariations(i);
+            var que = new Queue<Node>();
+            que.Enqueue(_tree.Root);
 
-            //        //foreach (var variation in variations.Where(x => x.Length > 0 && x.Last().Attempts >= _minSup))
-            //        //{
-            //        //    list.Add(new FrequentSets
-            //        //    {
-            //        //        Attempts = variation.Last().Attempts,
-            //        //        Set = variation.Select(x => x.Key).ToArray()
-            //        //    });
-            //        //}
+            while (que.Count > 0)
+            {
+                Node node = que.Dequeue();
 
-            //    }
-            //}
+                var frequentLeafs = node.Leafs.Where(x => x.HasSupport(minSupport, _tree.NumberTransactions)).ToArray();
+                list.AddRange(frequentLeafs);
+                
+                if (node.IsRoot || frequentLeafs.Length > 0)
+                {
+                    foreach (var children in node)
+                        que.Enqueue(children.Value);
+                }
+            }
 
             return list.ToArray();
         }
 
-        public FrequentItem[] GetFrequentItems(int key)
+
+        public Leaf[] GetFrequentSets(double minSupport, int size)
+        {
+            var list = new List<Leaf>();
+
+            var que = new Queue<Node>();
+            que.Enqueue(_tree.Root);
+
+            while (que.Count > 0)
+            {
+                Node node = que.Dequeue();
+
+                if (node.Level < size)
+                {
+                    foreach (var children in node)
+                        que.Enqueue(children.Value);
+                    continue;
+                }
+
+                var frequentLeafs = node.Leafs.Where(x => x.HasSupport(minSupport, _tree.NumberTransactions)).ToArray();
+                list.AddRange(frequentLeafs);
+            }
+
+            return list.ToArray();
+        }
+
+        public FrequentItem[] GetFrequentItems(int product)
         {
             var items = new List<FrequentItem>();
+            int key = _tree.Root.GetHashCode(product);
 
-            //1 condition -> get all from element key
-            //if (_tree.Root.ContainsKey(key))
-            //{
-            //    items.AddRange(
-            //        _tree
-            //        .Root[key]
-            //        .Where(x => x.Value.Attempts >= _minSup)
-            //        .Select(x => new FrequentItem
-            //        {
-            //            Source = key,
-            //            Item = x.Value.Key,
-            //            Attempts = x.Value.Attempts
-            //        }));
-            //}
+            Node node = _tree.Root[key];
 
-            //2 condition -> get items from key less than source key
-            //foreach (var node in _tree.Root)
-            //{
-            //    if (node.Key == key)
-            //        break;
-
-            //    if (!node.Value.ContainsKey(key) || node.Value[key].Attempts < _minSup)
-            //        continue;
-
-            //    items.Add(new FrequentItem { Source = key, Item = node.Key, Attempts = node.Value[key].Attempts });
-            //}
+            foreach (var children in node)
+                items.AddRange(
+                    children.Value.Leafs.Where(x => x.Elements[0] == product)
+                        .Select(
+                            x => new FrequentItem {Attempts = x.Attempts, Item = x.Elements[1], Source = x.Elements[0]}));
 
             return items.OrderByDescending(x => x.Attempts).ToArray();
         }
 
-        //public AssociationRule[] GetAssociationRules()
-        //{
-        //    var items = new List<AssociationRule>();
+        public AssociationRule[] GetAssociationRules(double minSup, double minConf)
+        {
+            var items = new List<AssociationRule>();
 
-        //    FrequentSets[] sets = GetFrequentSets();
+            Leaf[] sets = GetFrequentSets(minSup);
 
-        //    foreach (var set in sets.Where(x => x.Depth > 1))
-        //    {
-        //        AssociationRule[] rules = GetAllVariationsOfSet(set);
-        //        items.AddRange(rules.Where(x => GetConfidence(x) >= _minConf));
-        //    }
+            for (int i = 2; i <= _tree.MaxSize; i++)
+            {
+                foreach (var left in sets.Where(_ => _.Elements.Length == i))
+                {
+                    var right = sets.First(x => x.Exist(left.Elements.Take(i-1).ToArray()));
 
-        //    return items.ToArray();
-        //}
+                    double confidence = left.Support.Value/right.Support.Value;
+
+                    if (confidence >= minConf)
+                        items.Add(new AssociationRule
+                        {
+                            Confidence = confidence,
+                            Left = left.Elements,
+                            Right = right.Elements
+                        });
+                }
+            }
+
+            return items.ToArray();
+        }
+
+        //TODO
+        public AssociationRule[] GetAssociationRules(double minSup, double minConf, int maxSize)
+        {
+            var items = new List<AssociationRule>();
+
+            Leaf[] sets = GetFrequentSets(minSup, maxSize);
+
+            for (int i = 2; i <= _tree.MaxSize; i++)
+            {
+                foreach (var left in sets.Where(_ => _.Elements.Length == i))
+                {
+                    var right = sets.First(x => x.Exist(left.Elements.Take(i-1).ToArray()));
+
+                    double confidence = left.Support.Value/right.Support.Value;
+
+                    if (confidence >= minConf)
+                        items.Add(new AssociationRule
+                        {
+                            Confidence = confidence,
+                            Left = left.Elements,
+                            Right = right.Elements
+                        });
+                }
+            }
+
+            return items.ToArray();
+        }
 
         //private double GetConfidence(AssociationRule rule)
         //{

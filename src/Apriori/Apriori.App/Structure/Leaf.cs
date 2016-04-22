@@ -8,12 +8,23 @@ namespace Apriori.App.Structure
     {
         public int[] Elements { get; set; }
         public int Attempts { get; set; }
+        public double? Support { get; private set; }
 
         public bool Exist(int[] vector)
         {
             if (Elements == null || vector == null || Elements.Length != vector.Length) return false;
             if (Elements.Where((t, i) => t != vector[i]).Any()) return false;
             return true;
+        }
+
+        public bool HasSupport(double support, int numberTransactions)
+        {
+            if (Support.HasValue)
+                return Support.Value >= support;
+
+            Support = Attempts/(double)numberTransactions;
+
+            return HasSupport(support, numberTransactions);
         }
 
         public override int GetHashCode()

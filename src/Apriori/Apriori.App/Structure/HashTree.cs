@@ -7,17 +7,24 @@ namespace Apriori.App.Structure
     [Serializable]
     class HashTree
     {
+        private int _numberOfTransactions;
+        private readonly int _maxSize;
         private readonly Node _nodes;
 
         public Node Root => _nodes;
 
+        public int NumberTransactions => _numberOfTransactions;
+        public int MaxSize => _maxSize;
+
         public HashTree(int maxSize)
         {
+            _maxSize = maxSize;
             _nodes = new Node(maxSize);
         }
 
         public void Add(int[] input)
         {
+            _numberOfTransactions++;
             _nodes.Add(input);
         }
 
