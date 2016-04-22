@@ -1,4 +1,6 @@
-﻿namespace Apriori.App.Structure
+﻿using System;
+
+namespace Apriori.App.Structure
 {
     class HashTree
     {
@@ -19,7 +21,19 @@
         //TODO
         public void Merge(HashTree tree)
         {
-            
+            throw new NotImplementedException();
+        }
+
+        //TODO
+        public void Save(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        //TODO
+        public static HashTree Load(string path)
+        {
+            throw new NotImplementedException();
         }
 
     }

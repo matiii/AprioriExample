@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Apriori.App.Structure
 {
+    [Serializable]
     class Node : Dictionary<int, Node>
     {
         private readonly List<Leaf> _leafs = new List<Leaf>();
@@ -75,13 +76,10 @@ namespace Apriori.App.Structure
             }
         }
 
-        //TODO: optimize -> get only elements which contains in parent
         public void GenerateLeafs(int[] vector)
         {
             int[] items = GetNodeElements(vector);
             int[] items2 = GetParentElements(vector);
-
-            //var elements = items.Union(items2).Clean();
 
             var que = new Queue<List<int>>();
 
@@ -101,7 +99,6 @@ namespace Apriori.App.Structure
                 if (job.Count == Level)
                 {
                     if (!items.Contains(job.Last())) continue;
-                    //if (Parent.Leafs.Length > 0 && !Parent.Leafs.Any(x => x.Exist(job.Take(Level - 1).ToArray()))) continue;
 
                     var leaf = _leafs.FirstOrDefault(x => x.Exist(job.ToArray()));
 
