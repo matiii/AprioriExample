@@ -50,9 +50,9 @@ namespace Apriori.App
         {
             var reader = new FileReader();
 
-            //int[][] dataSet = reader.Read("retail.dat.txt");
+            int[][] dataSet = reader.Read("retail.dat.txt");
 
-            int[][] dataSet = {new[] {1, 2, 3, 4}, new[] {1, 2, 3, 4}};
+            //int[][] dataSet = {new[] {1, 2, 3, 4}, new[] {1, 2, 3, 4}};
 
 
             var tree = new HashTree(3);
@@ -70,7 +70,7 @@ namespace Apriori.App
 
             tree.Save("hash.tree");
 
-            HashTree load = HashTree.Load("hash.tree");
+            //HashTree load = HashTree.Load("hash.tree");
 
             //Node[] nodes = tree.GetNodesByDeep(3).ToArray();
             //Node[][] variation = nodes[0].GetAllVariations(3).ToArray();
