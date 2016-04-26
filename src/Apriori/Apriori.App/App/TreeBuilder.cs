@@ -40,19 +40,18 @@ namespace Apriori.App.App
 
         private void Print(int? current, int? toProcess, int length = 0, double time = 0)
         {
-            Clear();
-            WriteLine("Projekt 1 | ADD");
-            WriteLine($"Operation: treeBuilder {_maxSize}");
-            WriteLine("Mateusz Mazurek s12657 | Filip Stybel s8292");
-            WriteLine("Repo: https://github.com/matiii/AprioriExample");
-
-            if (current.HasValue && toProcess.HasValue)
+            Manager.HeadMsg(() =>
             {
-                WriteLine();
-                WriteLine();
-                WriteLine($"Element of {length} length was processed by {time.ToString("F")} sec.");
-                WriteLine($"Process: {current.Value}/{toProcess.Value}");
-            }
+                WriteLine($"Operation buildtree {_maxSize}");
+            },
+                () =>
+                {
+                    WriteLine();
+                    WriteLine();
+                    WriteLine($"Element of {length} length was processed by {time.ToString("F")} sec.");
+                    WriteLine($"Process: {current.Value}/{toProcess.Value}");
+                }
+            );
         }
     }
 }

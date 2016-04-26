@@ -1,4 +1,5 @@
 ﻿using System;
+using static System.Console;
 
 namespace Apriori.App.App
 {
@@ -11,6 +12,18 @@ namespace Apriori.App.App
         {
             _input = input;
             Reponse();
+        }
+
+        public static void HeadMsg(Action operation, Action body)
+        {
+            Clear();
+            WriteLine("Projekt 1 | ADD");
+            operation?.Invoke();
+            WriteLine("Mateusz Mazurek s12657 | Filip Stybel s8292");
+            WriteLine("Repo: https://github.com/matiii/AprioriExample");
+            WriteLine();
+            WriteLine();
+            body?.Invoke();
         }
 
         private void Reponse()
@@ -85,7 +98,7 @@ namespace Apriori.App.App
 
         private void FrequentSets(double minSup)
         {
-            
+
         }
 
         private void BuildTree(int maxSize)
@@ -96,7 +109,28 @@ namespace Apriori.App.App
 
         private void ViewHelp()
         {
+            HeadMsg(() =>
+            {
+                WriteLine("Help");
+            },
+                () =>
+                {
+                    WriteLine("Avaiable commands:");
+                    WriteLine("* buildtree [maxSize: int]");
+                    WriteLine("* frequentSets [minSup: double]");
+                    WriteLine("* frequentProducts [product: int]");
+                    WriteLine("* associationRules [minSup: double] [minConf: double]");
+                    WriteLine("* associationRules [minSup: double] [minConf: double] [maxSize: int]");
+                    WriteLine("* associationProducts [product: int]");
+                    WriteLine();
+                    WriteLine();
+                    WriteLine("Examples:");
+                    WriteLine();
+                    WriteLine("buildtree 3 <- its build hash tree where the largest leaf will be have 3 elements");
+                    WriteLine("frequentSets 0.6 <- return all frequnts sets which all have support more or equal than 0.6");
 
+                }
+            );
         }
     }
 }

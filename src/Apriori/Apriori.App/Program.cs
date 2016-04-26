@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Apriori.App.App;
 using Apriori.App.Structure;
 using static System.Console;
 
@@ -13,18 +14,18 @@ namespace Apriori.App
     {
         static void Main(string[] args)
         {
-            Print(null, null);
+            //Print(null, null);
 
             try
             {
-                Do();
+                var manager = new Manager(args);
             }
             catch (Exception ex)
             {
-                long memory = GC.GetTotalMemory(true);
                 WriteLine($"Błąd: {ex.Message}");   
             }
 
+            WriteLine();
             WriteLine("Press any key to exit...");
             ReadKey();
         }
@@ -48,29 +49,29 @@ namespace Apriori.App
 
         private static void Do()
         {
-            var reader = new FileReader();
+            //var reader = new FileReader();
 
-            int[][] dataSet = reader.Read("retail.dat.txt");
+            //int[][] dataSet = reader.Read("retail.dat.txt");
 
-            //int[][] dataSet = {new[] {1, 2, 3, 4}, new[] {1, 2, 3, 4}};
-
-
-            var tree = new HashTree(3);
-
-            var stopWatch = new Stopwatch();
-            for (int i = 0; i < dataSet.Length; i++)
-            {
-                stopWatch.Start();
-                tree.Add(dataSet[i]);
-                stopWatch.Stop();
-                Print(i + 1, dataSet.Length, dataSet[i].Length, stopWatch.Elapsed.TotalSeconds);
-                stopWatch.Restart();
-            }
+            ////int[][] dataSet = {new[] {1, 2, 3, 4}, new[] {1, 2, 3, 4}};
 
 
-            tree.Save("hash.tree");
+            //var tree = new HashTree(3);
 
-            //HashTree load = HashTree.Load("hash.tree");
+            //var stopWatch = new Stopwatch();
+            //for (int i = 0; i < dataSet.Length; i++)
+            //{
+            //    stopWatch.Start();
+            //    tree.Add(dataSet[i]);
+            //    stopWatch.Stop();
+            //    Print(i + 1, dataSet.Length, dataSet[i].Length, stopWatch.Elapsed.TotalSeconds);
+            //    stopWatch.Restart();
+            //}
+
+
+            //tree.Save("hash.tree");
+
+            HashTree load = HashTree.Load("hash.tree");
 
             //Node[] nodes = tree.GetNodesByDeep(3).ToArray();
             //Node[][] variation = nodes[0].GetAllVariations(3).ToArray();
