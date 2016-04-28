@@ -11,6 +11,6 @@ namespace Apriori.App
         protected string[] LSide => Left.Select(x => x.ToString()).ToArray();
         protected string[] RSide => Right.Select(x => x.ToString()).ToArray();
 
-        public override string ToString() => $"{LSide.Aggregate((a, b) => a+b)} => {RSide.Aggregate((a,b) => a+b)}: conf = {Confidence.ToString("F")}";
+        public override string ToString() => $"{LSide.Aggregate((a, b) => a + " " + b)} => {RSide.Aggregate((a,b) => a + " " + b)}: conf = {Confidence.ToString("F")}";
     }
 }

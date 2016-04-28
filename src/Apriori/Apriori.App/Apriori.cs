@@ -13,6 +13,8 @@ namespace Apriori.App
             _tree = tree;
         }
 
+        public int NumberOfUniqProducts() => _tree.Root.Sum(node => node.Value.UniqueValuesCount);
+
         public Leaf[] GetFrequentSets(double minSupport, bool maxSize = false, int size = 0)
         {
             var list = new List<Leaf>();
@@ -110,7 +112,7 @@ namespace Apriori.App
             {
                 foreach (var left in sets.Where(_ => _.Elements.Length == i))
                 {
-                    var right = sets.First(x => x.Exist(left.Elements.Take(i-1).ToArray()));
+                    Leaf right = GetLeaf(left.Elements.Take(i-1).ToArray());
 
                     double confidence = left.Support.Value/right.Support.Value;
 
@@ -125,5 +127,17 @@ namespace Apriori.App
             }
         }
 
+        private Leaf GetLeaf(int[] vector)
+        {
+            Node node = _tree.Root;
+
+            for (int i = 0; i < vector.Length; i++)
+            {
+                int key = node.GetHashCode(vector[i]);
+                node = node[key];
+            }
+
+            return node.Leafs.First(x => x.Exist(vector));
+        }
     }
 }

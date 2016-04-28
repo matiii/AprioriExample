@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Apriori.App.App;
-using Apriori.App.Structure;
 using static System.Console;
 
 namespace Apriori.App

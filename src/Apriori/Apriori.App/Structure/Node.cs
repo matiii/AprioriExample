@@ -18,6 +18,7 @@ namespace Apriori.App.Structure
         public int Key { get; }
 
         public Leaf[] Leafs => _leafs.ToArray();
+        public int UniqueValuesCount => _uniqueValues.Count;
 
         public bool IsRoot => Parent == null;
 

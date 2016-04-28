@@ -58,7 +58,11 @@ namespace Apriori.App.App
         public void Reponse(string[] input)
         {
 
-            if (input.Length == 2 && input[0] == "buildtree")
+            if (input.Length == 1 && input[0] == "statistic")
+            {
+                Statistic();
+            }
+            else if (input.Length == 2 && input[0] == "buildtree")
             {
                 int maxSize;
 
@@ -91,7 +95,7 @@ namespace Apriori.App.App
             {
                 double minSup, minConf;
 
-                if (Double.TryParse(input[1], out minSup) && Double.TryParse(input[2], out minConf))
+                if (Double.TryParse(input[1], NumberStyles.Number, CultureInfo.InvariantCulture, out minSup) && Double.TryParse(input[2], NumberStyles.Number, CultureInfo.InvariantCulture, out minConf))
                     AssociationRules(minSup, minConf);
             }
             else if (input.Length == 4 && input[0] == "associationRules")
@@ -99,36 +103,62 @@ namespace Apriori.App.App
                 double minSup, minConf;
                 int maxSize;
 
-                if (Double.TryParse(input[1], out minSup) && Double.TryParse(input[2], out minConf) && Int32.TryParse(input[3], out maxSize))
+                if (Double.TryParse(input[1], NumberStyles.Number, CultureInfo.InvariantCulture, out minSup) && Double.TryParse(input[2], NumberStyles.Number, CultureInfo.InvariantCulture, out minConf) && Int32.TryParse(input[3], out maxSize))
                     AssociationRules(minSup, minConf, maxSize);
             }
-            else if (input.Length == 2 && input[0] == "associationProducts")
-            {
-                int product;
-
-                if (Int32.TryParse(input[1], out product))
-                    AssociationProducts(product);
-            }
         }
 
-        private void AssociationProducts(int product)
+        private void Statistic()
         {
-            throw new NotImplementedException();
+            var apriori = new Apriori(Tree);
+            string path = Path.Combine(DirectoryPath, "statistic.txt");
+            File.WriteAllText(path, $"Liczba transakcji: {Tree.NumberTransactions} Liczba towarów: {apriori.NumberOfUniqProducts()}");
         }
+
 
         private void AssociationRules(double minSup, double minConf, int maxSize)
         {
-            throw new NotImplementedException();
+            var apriori = new Apriori(Tree);
+            AssociationRule[] rules = apriori.GetAssociationRules(minSup, minConf, maxSize);
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"Association Rules minSup: {minSup}, minConf: {minConf}, maxSize: {maxSize}");
+
+            foreach (var rule in rules.OrderByDescending(x => x.Confidence))
+                sb.AppendLine(rule.ToString());
+
+            string path = Path.Combine(DirectoryPath, $"{TreeName}-associationrules-{DoubleToString(minSup)}-{DoubleToString(minConf)}-{maxSize}.txt");
+            File.WriteAllText(path, sb.ToString());
         }
 
         private void AssociationRules(double minSup, double minConf)
         {
-            throw new NotImplementedException();
+            var apriori = new Apriori(Tree);
+            AssociationRule[] rules = apriori.GetAssociationRules(minSup, minConf);
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"Association Rules minSup: {minSup}, minConf: {minConf}");
+
+            foreach (var rule in rules.OrderByDescending(x => x.Confidence))
+                sb.AppendLine(rule.ToString());
+
+            string path = Path.Combine(DirectoryPath, $"{TreeName}-associationrules-{DoubleToString(minSup)}-{DoubleToString(minConf)}.txt");
+            File.WriteAllText(path, sb.ToString());
         }
 
         private void FrequentProducts(int product)
         {
-            throw new NotImplementedException();
+            var apriori = new Apriori(Tree);
+            FrequentItem[] items = apriori.GetFrequentItems(product);
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"Frequent product for: {product}. Find {items.Length} results;");
+
+            foreach (var frequentItem in items.OrderByDescending(x => x.Confidence))
+                sb.AppendLine(frequentItem.ToString());
+
+            string path = Path.Combine(DirectoryPath, $"{TreeName}-frequentproducts-{product}.txt");
+            File.WriteAllText(path, sb.ToString());
         }
 
         private void FrequentSets(double minSup)
@@ -137,7 +167,7 @@ namespace Apriori.App.App
 
             Leaf[] leafs = apriori.GetFrequentSets(minSup);
 
-            FrequentSets(leafs, $"FrequentSets {minSup} Find elements: {leafs.Length}", $"{TreeName}-frequentsets-{minSup.ToString().Replace(".", "_").Replace(",", "_")}.txt");
+            FrequentSets(leafs, $"FrequentSets {minSup} Find elements: {leafs.Length}", $"{TreeName}-frequentsets-{DoubleToString(minSup)}.txt");
         }
 
         private void FrequentSets(double minSup, int maxSize)
@@ -146,9 +176,11 @@ namespace Apriori.App.App
 
             Leaf[] leafs = apriori.GetFrequentSets(minSup, maxSize);
 
-            FrequentSets(leafs, $"FrequentSets {minSup} {maxSize} Find elements: {leafs.Length}", $"{TreeName}-frequentsets-{minSup.ToString().Replace(".", "_").Replace(",", "_")}-{maxSize}.txt");
+            FrequentSets(leafs, $"FrequentSets {minSup} {maxSize} Find elements: {leafs.Length}", $"{TreeName}-frequentsets-{DoubleToString(minSup)}-{maxSize}.txt");
         }
 
+
+        private string DoubleToString(double value) => value.ToString().Replace(".", "_").Replace(",", "_");
 
         private void FrequentSets(Leaf[] leafs, string msg, string filename)
         {
@@ -190,12 +222,12 @@ namespace Apriori.App.App
                 () =>
                 {
                     WriteLine("Avaiable commands:");
+                    WriteLine("* statistic");
                     WriteLine("* buildtree [maxSize: int]");
                     WriteLine("* frequentSets [minSup: double]");
                     WriteLine("* frequentProducts [product: int]");
                     WriteLine("* associationRules [minSup: double] [minConf: double]");
                     WriteLine("* associationRules [minSup: double] [minConf: double] [maxSize: int]");
-                    WriteLine("* associationProducts [product: int]");
                     WriteLine("* quit");
                     WriteLine();
                     WriteLine();
