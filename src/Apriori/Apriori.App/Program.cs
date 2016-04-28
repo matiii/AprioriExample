@@ -14,11 +14,9 @@ namespace Apriori.App
     {
         static void Main(string[] args)
         {
-            //Print(null, null);
-
             try
             {
-                var manager = new Manager(args);
+                Run();
             }
             catch (Exception ex)
             {
@@ -30,60 +28,28 @@ namespace Apriori.App
             ReadKey();
         }
 
-        private static void Print(int? current, int? toProcess, int length = 0, double time = 0)
+        private static void Run()
         {
-            Clear();
-            WriteLine("Projekt 1 | ADD");
-            WriteLine("Mateusz Mazurek s12657 | Filip Stybel s89..");
-            WriteLine("Repo: https://github.com/matiii/AprioriExample");
+            var manager = new Manager();
+            manager.Start();
 
-            if (current.HasValue && toProcess.HasValue)
+            bool noExit = true;
+
+            while (noExit)
             {
-                WriteLine();
-                WriteLine();
-                WriteLine($"Element of {length} length was processed by {time.ToString("F")} sec.");
-                WriteLine($"Process: {current.Value}/{toProcess.Value}");
+                manager.ViewHelp();
+
+                Write("> ");
+                string input = ReadLine();
+                string[] vector = input.Split(' ').Where(x => x.Length > 0).ToArray();
+
+                manager.Reponse(vector);
+
+                if (input == "quit")
+                    noExit = false;
             }
+
+
         }
-
-
-        private static void Do()
-        {
-            //var reader = new FileReader();
-
-            //int[][] dataSet = reader.Read("retail.dat.txt");
-
-            ////int[][] dataSet = {new[] {1, 2, 3, 4}, new[] {1, 2, 3, 4}};
-
-
-            //var tree = new HashTree(3);
-
-            //var stopWatch = new Stopwatch();
-            //for (int i = 0; i < dataSet.Length; i++)
-            //{
-            //    stopWatch.Start();
-            //    tree.Add(dataSet[i]);
-            //    stopWatch.Stop();
-            //    Print(i + 1, dataSet.Length, dataSet[i].Length, stopWatch.Elapsed.TotalSeconds);
-            //    stopWatch.Restart();
-            //}
-
-
-            //tree.Save("hash.tree");
-
-            HashTree load = HashTree.Load("hash.tree");
-
-            //Node[] nodes = tree.GetNodesByDeep(3).ToArray();
-            //Node[][] variation = nodes[0].GetAllVariations(3).ToArray();
-
-            //var apriori = new Apriori(tree, 3, 3, 0.6);
-            //var sets = apriori.GetFrequentSets();
-            //var items = apriori.GetFrequentItems(4);
-            //var rules = apriori.GetAssociationRules();
-        }
-
-        
-        
-
     }
 }

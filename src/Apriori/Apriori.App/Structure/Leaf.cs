@@ -45,6 +45,15 @@ namespace Apriori.App.Structure
             if (leaf == null || !Exist(leaf.Elements)) return false;
             return true;
         }
-        
+
+        public override string ToString() => $"Elements: {GetElements()} | Attempts: {Attempts} | Support: {Support ?? -1.0}";
+
+
+        private string GetElements()
+        {
+            if (Elements == null) return "";
+            string[] e = Elements.Select(x => x.ToString()).ToArray();
+            return e.Aggregate((a, b) => a + " " + b);
+        }
     }
 }
