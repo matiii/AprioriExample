@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Apriori.App.App;
 using Apriori.App.Structure;
 
 namespace Apriori.App
@@ -114,6 +116,12 @@ namespace Apriori.App
                 {
                     Leaf right = GetLeaf(left.Elements.Take(i-1).ToArray());
 
+                    if (right == null)
+                    {
+                        Manager.HeadMsg(() => Console.WriteLine($"GetAssociationRules {left.Elements.Select(x => x.ToString()).Aggregate((a, b) => a + " " + b)}"), () => {Console.WriteLine("Brak elementu w drzewie.");});
+                        continue;
+                    }
+
                     double confidence = left.Support.Value/right.Support.Value;
 
                     if (confidence >= minConf)
@@ -137,7 +145,7 @@ namespace Apriori.App
                 node = node[key];
             }
 
-            return node.Leafs.First(x => x.Exist(vector));
+            return node.Leafs.FirstOrDefault(x => x.Exist(vector));
         }
     }
 }

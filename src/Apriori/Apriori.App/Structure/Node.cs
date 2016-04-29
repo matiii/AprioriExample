@@ -22,14 +22,14 @@ namespace Apriori.App.Structure
 
         public bool IsRoot => Parent == null;
 
-        protected Node(SerializationInfo info, StreamingContext context): base(info, context)
+        protected Node(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            _leafs        = (List<Leaf>) info.GetValue(nameof(_leafs), typeof(List<Leaf>));
+            _leafs = (List<Leaf>) info.GetValue(nameof(_leafs), typeof(List<Leaf>));
             _uniqueValues = (HashSet<int>) info.GetValue(nameof(_uniqueValues), typeof(HashSet<int>));
-            _maxSize      = (int) info.GetValue(nameof(_maxSize), typeof(int));
-            Parent        = (Node) info.GetValue(nameof(Parent), typeof(Node));
-            Level         = (int) info.GetValue(nameof(Level), typeof(int));
-            Key           = (int) info.GetValue(nameof(Key), typeof(int));
+            _maxSize = (int) info.GetValue(nameof(_maxSize), typeof(int));
+            Parent = (Node) info.GetValue(nameof(Parent), typeof(Node));
+            Level = (int) info.GetValue(nameof(Level), typeof(int));
+            Key = (int) info.GetValue(nameof(Key), typeof(int));
         }
 
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
@@ -131,20 +131,12 @@ namespace Apriori.App.Structure
                 else if (job.Count == Level - 1)
                 {
                     foreach (var item in items.Where(x => x > job.Last()))
-                    {
-                        job.Add(item);
-                        que.Enqueue(job);
-                    }
+                        que.Enqueue(new List<int>(job) {item});
                 }
                 else
                 {
-                    int index = Array.IndexOf(items2, job.Last()) + 1;
-
-                    for (int i = index; i < items2.Length; i++)
-                    {
-                        job.Add(items2[i]);
-                        que.Enqueue(job);
-                    }
+                    foreach (var item in items2.Where(x => x > job.Last()))
+                        que.Enqueue(new List<int>(job) { item });
                 }
             }
         }

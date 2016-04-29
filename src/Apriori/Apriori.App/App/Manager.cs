@@ -34,13 +34,7 @@ namespace Apriori.App.App
 
         public void Start()
         {
-            string path = GetTheLargestTree();
-            TreeName = Path.GetFileNameWithoutExtension(path);
-            HeadMsg(() => { WriteLine($"Inicjalizacja - {TreeName}"); }, () => { WriteLine("Trwa wczytywanie drzewa."); });
-
             HandleDirectory();
-
-            Tree = HashTree.Load(path);
         }
 
         private void HandleDirectory()
@@ -55,10 +49,21 @@ namespace Apriori.App.App
             }
         }
 
+        private void LoadTree()
+        {
+            string path = GetTheLargestTree();
+            TreeName = Path.GetFileNameWithoutExtension(path);
+            HeadMsg(() => { WriteLine($"Inicjalizacja - {TreeName}"); }, () => { WriteLine("Trwa wczytywanie drzewa."); });
+            Tree = HashTree.Load(path);
+        }
+
         public void Reponse(string[] input)
         {
-
-            if (input.Length == 1 && input[0] == "statistic")
+            if (input.Length == 1 && input[0] == "loadTree")
+            {
+                LoadTree();
+            }
+            else if (input.Length == 1 && input[0] == "statistic")
             {
                 Statistic();
             }
@@ -222,6 +227,7 @@ namespace Apriori.App.App
                 () =>
                 {
                     WriteLine("Avaiable commands:");
+                    WriteLine("* loadTree");
                     WriteLine("* statistic");
                     WriteLine("* buildtree [maxSize: int]");
                     WriteLine("* frequentSets [minSup: double]");
