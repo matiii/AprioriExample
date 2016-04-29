@@ -111,9 +111,11 @@ namespace Apriori.App.Structure
                 foreach (var element in items)
                     que.Enqueue(new List<int> { element });
             }
-
-            foreach (var element in items2)
-                que.Enqueue(new List<int> { element });
+            else
+            {
+                foreach (var leaf in Parent.Leafs.Where(x => x.Elements.All(e => items2.Contains(e))))
+                    que.Enqueue(new List<int>(leaf.Elements));
+            }
 
             while (que.Count > 0)
             {
@@ -135,8 +137,7 @@ namespace Apriori.App.Structure
                 }
                 else
                 {
-                    foreach (var item in items2.Where(x => x > job.Last()))
-                        que.Enqueue(new List<int>(job) { item });
+                    throw new InvalidOperationException("Error");
                 }
             }
         }
