@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Apriori.App.Structure
@@ -28,10 +31,60 @@ namespace Apriori.App.Structure
             _nodes.Add(input);
         }
 
-        //TODO
         public void Merge(HashTree tree)
         {
-            throw new NotImplementedException();
+            var que = new Queue<Node>();
+            que.Enqueue(tree.Root);
+
+            while (que.Count > 0)
+            {
+                Node node = que.Dequeue();
+
+                if (!node.IsRoot)
+                    Map(node);
+
+                foreach (var n in node)
+                    que.Enqueue(n.Value);
+            }
+        }
+
+        private void Map(Node node)
+        {
+            var path = new List<int>();
+            Node current = node;
+
+            while (!current.IsRoot)
+            {
+                path.Add(current.Key);
+                current = current.Parent;
+            }
+
+            path.Reverse();
+            int[] result = path.ToArray();
+
+            current = Root;
+
+            foreach (var p in result)
+                current = current[p];
+
+            Reduce(node, current);
+        }
+
+        private void Reduce(Node source, Node destination)
+        {
+            foreach (var leaf in source.Leafs)
+            {
+                var dest = destination.Leafs.FirstOrDefault(x => x.Exist(leaf.Elements));
+
+                if (dest == null)
+                {
+
+                }
+                else
+                {
+                    
+                }
+            }
         }
 
         public void Save(string path)
