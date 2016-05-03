@@ -15,7 +15,7 @@ namespace Apriori.App
             _tree = tree;
         }
 
-        public int NumberOfUniqProducts() => _tree.Root.Sum(node => node.Value.UniqueValuesCount);
+        public int NumberOfUniqProducts() => _tree.Root.Sum(node => node.Value.Leafs.Count);
 
         public Leaf[] GetFrequentSets(double minSupport, bool maxSize = false, int size = 0)
         {

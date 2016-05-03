@@ -8,8 +8,7 @@ namespace Apriori.App.Structure
     [Serializable]
     class Node : Dictionary<int, Node>, ISerializable
     {
-        private readonly List<Leaf> _leafs = new List<Leaf>();
-        private readonly HashSet<int> _uniqueValues = new HashSet<int>();
+        private readonly Dictionary<int, Leaf> _leafs = new Dictionary<int, Leaf>();
 
         private readonly int _maxSize;
 
@@ -17,15 +16,13 @@ namespace Apriori.App.Structure
         public int Level { get; }
         public int Key { get; }
 
-        public Leaf[] Leafs => _leafs.ToArray();
-        public int UniqueValuesCount => _uniqueValues.Count;
+        public Dictionary<int, Leaf>.ValueCollection Leafs => _leafs.Values;
 
         public bool IsRoot => Parent == null;
 
         protected Node(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            _leafs = (List<Leaf>) info.GetValue(nameof(_leafs), typeof(List<Leaf>));
-            _uniqueValues = (HashSet<int>) info.GetValue(nameof(_uniqueValues), typeof(HashSet<int>));
+            _leafs = (Dictionary<int, Leaf>) info.GetValue(nameof(_leafs), typeof(Dictionary<int, Leaf>));
             _maxSize = (int) info.GetValue(nameof(_maxSize), typeof(int));
             Parent = (Node) info.GetValue(nameof(Parent), typeof(Node));
             Level = (int) info.GetValue(nameof(Level), typeof(int));
@@ -36,7 +33,6 @@ namespace Apriori.App.Structure
         {
             base.GetObjectData(info, context);
             info.AddValue(nameof(_leafs), _leafs);
-            info.AddValue(nameof(_uniqueValues), _uniqueValues);
             info.AddValue(nameof(_maxSize), _maxSize);
             info.AddValue(nameof(Parent), Parent);
             info.AddValue(nameof(Level), Level);
@@ -102,7 +98,6 @@ namespace Apriori.App.Structure
         public void GenerateLeafs(int[] vector)
         {
             int[] items = GetNodeElements(vector);
-            int[] items2 = GetParentElements(vector);
 
             var que = new Queue<List<int>>();
 
@@ -113,7 +108,7 @@ namespace Apriori.App.Structure
             }
             else
             {
-                foreach (var leaf in Parent.Leafs.Where(x => x.Elements.All(e => items2.Contains(e))))
+                foreach (var leaf in Parent.Leafs.Where(x => x.Elements.All(e => vector.Contains(e))))
                     que.Enqueue(new List<int>(leaf.Elements));
             }
 
@@ -123,12 +118,13 @@ namespace Apriori.App.Structure
 
                 if (job.Count == Level)
                 {
-                    var leaf = _leafs.FirstOrDefault(x => x.Exist(job.ToArray()));
+                    var leaf = new Leaf(job);
+                    int key = leaf.GetHashCode();
 
-                    if (leaf == null)
-                        AddLeaf(new Leaf { Attempts = 1, Elements = job.ToArray() });
+                    if (_leafs.ContainsKey(key))
+                        _leafs[key].Inc();
                     else
-                        leaf.Attempts++;
+                        _leafs.Add(key, leaf);
                 }
                 else if (job.Count == Level - 1)
                 {
@@ -136,23 +132,12 @@ namespace Apriori.App.Structure
                         que.Enqueue(new List<int>(job) {item});
                 }
                 else
-                {
                     throw new InvalidOperationException("Error");
-                }
             }
         }
 
-        public bool ContainsElement(int element) => _uniqueValues.Contains(element);
-
-        private void AddLeaf(Leaf leaf)
-        {
-            _leafs.Add(leaf);
-            _uniqueValues.UnionWith(leaf.Elements);
-        }
 
         private int[] GetNodeElements(int[] elements) => elements.Where(element => GetHashCode(element) == Key).ToArray();
-
-        private int[] GetParentElements(int[] elements) => elements.Where(x => Parent.ContainsElement(x)).ToArray();
 
         public int GetHashCode(int element) => element % _maxSize;
 
