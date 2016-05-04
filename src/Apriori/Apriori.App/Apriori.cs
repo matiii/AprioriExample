@@ -81,7 +81,9 @@ namespace Apriori.App
                 items.AddRange(
                     children.Value.Leafs.Where(x => x.Elements[0] == product)
                         .Select(
-                            x => new FrequentItem(x.Elements[0], x.Elements[1], x.Attempts, _tree.NumberTransactions, source.Attempts)));
+                            child =>
+                                new FrequentItem(child.Elements[0], child.Elements[1], child.Attempts,
+                                    _tree.NumberTransactions, source.Attempts)));
 
             return items.OrderByDescending(x => x.Attempts).ToArray();
         }

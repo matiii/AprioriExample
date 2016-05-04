@@ -34,12 +34,18 @@ namespace Apriori.App.Structure
             if (Support.HasValue)
                 return Support.Value >= support;
 
-            Support = Attempts/(double)numberTransactions;
+            Support = Attempts / (double) numberTransactions;
 
             return HasSupport(support, numberTransactions);
         }
 
-        public override int GetHashCode() => Elements.Aggregate(13, (current, element) => current*7 + element.GetHashCode());
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return Elements.Aggregate((int) 2166136261, (current, element) => (current*16777619) ^ element.GetHashCode());
+            }
+        }
 
         public override bool Equals(object obj)
         {

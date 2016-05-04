@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Linq;
 using Apriori.App.Structure;
 using static System.Console;
 
@@ -19,6 +20,7 @@ namespace Apriori.App.App
             var reader = new FileReader();
 
             int[][] dataSet = reader.Read("retail.dat.txt");
+            //int[][] dataSet = { new[] {1, 2, 3, 4, 5, 6}, new[] {4 ,5}, new[] {5, 6}, new[] {1}, new[] {1, 5}};
 
             var tree = new HashTree(_maxSize);
 
