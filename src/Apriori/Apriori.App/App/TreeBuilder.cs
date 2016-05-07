@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Apriori.App.Structure;
 using static System.Console;
 
@@ -8,6 +10,9 @@ namespace Apriori.App.App
     class TreeBuilder
     {
         private readonly int _maxSize;
+
+        //Sampling
+        private const int K = 4;
 
         public TreeBuilder(int maxSize)
         {
@@ -22,11 +27,30 @@ namespace Apriori.App.App
             int[][] dataSet = reader.Read("retail.dat.txt");
             //int[][] dataSet = { new[] {1, 2, 3, 4, 5, 6}, new[] {4 ,5}, new[] {5, 6}, new[] {1}, new[] {1, 5}};
 
+
+            var jobs = new Task[K];
+
+            for (int i = 0; i < K; i++)
+            {
+                var job = new Task(() => Job(dataSet, i));
+                jobs[i] = job;
+                job.Start();
+            }
+
+            Task.WaitAll(jobs);
+
+            WriteLine("Tree properly saved.");
+        }
+
+        private void Job(int[][] dataSet, int k)
+        {
             var tree = new HashTree(_maxSize);
 
             var stopWatch = new Stopwatch();
             for (int i = 0; i < dataSet.Length; i++)
             {
+                if (i % K != k) continue;
+
                 stopWatch.Start();
                 tree.Add(dataSet[i]);
                 stopWatch.Stop();
@@ -34,10 +58,7 @@ namespace Apriori.App.App
                 stopWatch.Restart();
             }
 
-
-            tree.Save($"hash-{_maxSize}.tree");
-
-            WriteLine("Tree properly saved.");
+            tree.Save($"hash-{_maxSize}-{k}.tree");
         }
 
         private void Print(int? current, int? toProcess, int length = 0, double time = 0)
