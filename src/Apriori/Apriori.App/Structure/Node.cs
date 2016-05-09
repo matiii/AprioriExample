@@ -124,7 +124,7 @@ namespace Apriori.App.Structure
                     if (_leafs.ContainsKey(key))
                         _leafs[key].Inc();
                     else
-                        _leafs.Add(key, leaf);
+                        AddLeaf(leaf);
                 }
                 else if (job.Count == Level - 1)
                 {
@@ -136,6 +136,23 @@ namespace Apriori.App.Structure
             }
         }
 
+
+        public void AddLeaf(Leaf leaf)
+        {
+            int key = leaf.GetHashCode();
+
+            if (_leafs.Count == Int32.MaxValue)
+            {
+                double avg = _leafs.Average(x => x.Value.Attempts);
+                
+                foreach (var toDelete in _leafs.Where(x => x.Value.Attempts < avg && x.Value.GetHashCode() != key).Select(x => x.Value).ToList())
+                {
+                    _leafs.Remove(toDelete.GetHashCode());
+                }
+            }
+
+            _leafs.Add(key, leaf);
+        }
 
         private int[] GetNodeElements(int[] elements) => elements.Where(element => GetHashCode(element) == Key).ToArray();
 

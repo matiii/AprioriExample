@@ -12,7 +12,7 @@ namespace Apriori.App.App
         private readonly int _maxSize;
 
         //Sampling
-        private const int K = 4;
+        private const int K = 1;
 
         public TreeBuilder(int maxSize)
         {
@@ -32,7 +32,8 @@ namespace Apriori.App.App
 
             for (int i = 0; i < K; i++)
             {
-                var job = new Task(() => Job(dataSet, i));
+                int j = i;
+                var job = new Task(() => Job(dataSet, j));
                 jobs[i] = job;
                 job.Start();
             }

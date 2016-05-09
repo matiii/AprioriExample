@@ -7,6 +7,8 @@ namespace Apriori.App.Structure
     [Serializable]
     class Leaf
     {
+        private readonly int _hashCode;
+
         public int[] Elements { get; }
         public int Attempts { get; private set; }
         public double? Support { get; private set; }
@@ -18,6 +20,8 @@ namespace Apriori.App.Structure
 
             Elements = source.ToArray();
             Attempts = 1;
+            string key = String.Join("_", Elements);
+            _hashCode = key.GetHashCode();
         }
 
         public void Inc() => Attempts++;
@@ -39,13 +43,7 @@ namespace Apriori.App.Structure
             return HasSupport(support, numberTransactions);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return Elements.Aggregate((int) 2166136261, (current, element) => (current*16777619) ^ element.GetHashCode());
-            }
-        }
+        public override int GetHashCode() => _hashCode;
 
         public override bool Equals(object obj)
         {
