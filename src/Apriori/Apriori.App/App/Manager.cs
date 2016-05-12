@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using Apriori.App.Structure;
 using static System.Console;
 
@@ -51,10 +53,27 @@ namespace Apriori.App.App
 
         private void LoadTree()
         {
-            string path = GetTheLargestTree();
-            TreeName = Path.GetFileNameWithoutExtension(path);
+            string[] paths = GetTheLargestTrees();
+            TreeName = Path.GetFileNameWithoutExtension(paths[0]);
             HeadMsg(() => { WriteLine($"Inicjalizacja - {TreeName}"); }, () => { WriteLine("Trwa wczytywanie drzewa."); });
-            Tree = HashTree.Load(path);
+
+            //var jobs = new Task[paths.Length];
+            var trees = new HashTree[paths.Length];
+
+
+            for (int i = 0; i < paths.Length; i++)
+            {
+                trees[i] = HashTree.Load(paths[i]);
+                trees[i].SetParents();
+            }
+
+
+            Tree = trees[0];
+
+            foreach (var tree in trees.Skip(1))
+            {
+                Tree.Merge(tree);
+            }
         }
 
         public void Reponse(string[] input)
@@ -200,22 +219,17 @@ namespace Apriori.App.App
             File.WriteAllText(path, sb.ToString());
         }
 
-        private string GetTheLargestTree()
+        private string[] GetTheLargestTrees()
         {
             string currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            string path = Directory.GetFiles(currentDirectory, "*.tree").OrderByDescending(x => x).FirstOrDefault();
-
-            if (path == null)
-                throw new Exception("Any tree was generated.");
-
-            return path;
+            return Directory.GetFiles(currentDirectory, "*.tree").ToArray();
         }
 
 
         private void BuildTree(int maxSize)
         {
             var builder = new TreeBuilder(maxSize);
-            builder.Build();
+            Tree = builder.Build();
         }
 
         public void ViewHelp()

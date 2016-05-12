@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Apriori.App.Structure
 {
     [Serializable]
-    class HashTree
+    class HashTree: ISerializable
     {
         private int _numberOfTransactions;
         private readonly int _maxSize;
@@ -33,6 +32,7 @@ namespace Apriori.App.Structure
 
         public void Merge(HashTree tree)
         {
+            _numberOfTransactions += tree.NumberTransactions;
             var que = new Queue<Node>();
             que.Enqueue(tree.Root);
 
@@ -45,6 +45,23 @@ namespace Apriori.App.Structure
 
                 foreach (var n in node)
                     que.Enqueue(n.Value);
+            }
+        }
+
+        public void SetParents()
+        {
+            var que = new Queue<Node>();
+            que.Enqueue(_nodes);
+
+            while (que.Count > 0)
+            {
+                Node node = que.Dequeue();
+
+                foreach (var n in node)
+                {
+                    que.Enqueue(n.Value);
+                    n.Value.Parent = node;
+                }
             }
         }
 
@@ -74,15 +91,16 @@ namespace Apriori.App.Structure
         {
             foreach (var leaf in source.Leafs)
             {
-                var dest = destination.Leafs.FirstOrDefault(x => x.Exist(leaf.Elements));
+                var dest = destination.GetLeaf(leaf.GetHashCode());
 
                 if (dest == null)
                 {
-
+                    destination.AddLeaf(leaf);
                 }
                 else
                 {
-                    
+                    for (int i = 0; i < leaf.Attempts; i++)
+                        dest.Inc();
                 }
             }
         }
@@ -106,9 +124,24 @@ namespace Apriori.App.Structure
             using (var file = File.OpenRead(path))
             {
                 var deserializer = new BinaryFormatter();
+                file.Seek(0, SeekOrigin.Begin);
                 return deserializer.Deserialize(file) as HashTree;
             }
         }
 
+
+        protected HashTree(SerializationInfo info, StreamingContext context)
+        {
+            _numberOfTransactions = (int) info.GetValue(nameof(_numberOfTransactions), typeof(int));
+            _maxSize = (int) info.GetValue(nameof(_maxSize), typeof(int));
+            _nodes = (Node) info.GetValue(nameof(_nodes), typeof(Node));
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(_numberOfTransactions), _numberOfTransactions);
+            info.AddValue(nameof(_maxSize), _maxSize);
+            info.AddValue(nameof(_nodes), _nodes);
+        }
     }
 }

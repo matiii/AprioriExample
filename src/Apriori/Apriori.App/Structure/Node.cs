@@ -12,7 +12,7 @@ namespace Apriori.App.Structure
 
         private readonly int _maxSize;
 
-        public Node Parent { get; }
+        public Node Parent { get; set; }
         public int Level { get; }
         public int Key { get; }
 
@@ -20,11 +20,14 @@ namespace Apriori.App.Structure
 
         public bool IsRoot => Parent == null;
 
+
+        public Leaf GetLeaf(int code) => _leafs.ContainsKey(code) ? _leafs[code] : null;
+
         protected Node(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             _leafs = (Dictionary<int, Leaf>) info.GetValue(nameof(_leafs), typeof(Dictionary<int, Leaf>));
             _maxSize = (int) info.GetValue(nameof(_maxSize), typeof(int));
-            Parent = (Node) info.GetValue(nameof(Parent), typeof(Node));
+            //Parent = (Node) info.GetValue(nameof(Parent), typeof(Node));
             Level = (int) info.GetValue(nameof(Level), typeof(int));
             Key = (int) info.GetValue(nameof(Key), typeof(int));
         }
@@ -34,7 +37,7 @@ namespace Apriori.App.Structure
             base.GetObjectData(info, context);
             info.AddValue(nameof(_leafs), _leafs);
             info.AddValue(nameof(_maxSize), _maxSize);
-            info.AddValue(nameof(Parent), Parent);
+            //info.AddValue(nameof(Parent), Parent);
             info.AddValue(nameof(Level), Level);
             info.AddValue(nameof(Key), Key);
         }

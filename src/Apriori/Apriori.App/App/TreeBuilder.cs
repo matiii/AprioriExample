@@ -11,8 +11,10 @@ namespace Apriori.App.App
     {
         private readonly int _maxSize;
 
+        private HashTree[] _forest;
+
         //Sampling
-        private const int K = 1;
+        private const int K = 24;
 
         public TreeBuilder(int maxSize)
         {
@@ -20,7 +22,7 @@ namespace Apriori.App.App
         }
 
 
-        public void Build()
+        public HashTree Build()
         {
             var reader = new FileReader();
 
@@ -29,6 +31,7 @@ namespace Apriori.App.App
 
 
             var jobs = new Task[K];
+            _forest = new HashTree[K];
 
             for (int i = 0; i < K; i++)
             {
@@ -40,7 +43,17 @@ namespace Apriori.App.App
 
             Task.WaitAll(jobs);
 
+
+            HashTree hashTree = _forest[0];
+
+            foreach (var tree in _forest.Skip(1))
+            {
+                hashTree.Merge(tree);
+            }
+
+
             WriteLine("Tree properly saved.");
+            return hashTree;
         }
 
         private void Job(int[][] dataSet, int k)
@@ -58,6 +71,8 @@ namespace Apriori.App.App
                 Print(i + 1, dataSet.Length, dataSet[i].Length, stopWatch.Elapsed.TotalSeconds);
                 stopWatch.Restart();
             }
+
+            _forest[k] = tree;
 
             tree.Save($"hash-{_maxSize}-{k}.tree");
         }

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Apriori.App.Structure
 {
     [Serializable]
-    class Leaf
+    class Leaf: ISerializable
     {
         private readonly int _hashCode;
 
@@ -44,6 +45,22 @@ namespace Apriori.App.Structure
         }
 
         public override int GetHashCode() => _hashCode;
+
+        protected Leaf(SerializationInfo info, StreamingContext context)
+        {
+            _hashCode = (int) info.GetValue(nameof(_hashCode), typeof(int));
+            Elements = (int[]) info.GetValue(nameof(Elements), typeof(int[]));
+            Attempts = (int) info.GetValue(nameof(Attempts), typeof(int));
+            Support = (double?) info.GetValue(nameof(Support), typeof(double?));
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(_hashCode), _hashCode);
+            info.AddValue(nameof(Elements), Elements);
+            info.AddValue(nameof(Attempts), Attempts);
+            info.AddValue(nameof(Support), Support);
+        }
 
         public override bool Equals(object obj)
         {
