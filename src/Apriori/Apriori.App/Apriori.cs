@@ -75,7 +75,19 @@ namespace Apriori.App
             int key = _tree.Root.GetHashCode(product);
 
             Node node = _tree.Root[key];
-            Leaf source = node.Leafs.First(x => x.Exist(new[] {product}));
+            Leaf source = node.GetLeaf(new Leaf(new[] {product}).GetHashCode());
+
+            foreach (var nodes in _tree.Root.Where(x => x.Key < key))
+            {
+                Node node2 = nodes.Value[key];
+                items.AddRange(
+                        node2.Leafs.Where(x => x.Elements[1] == product)
+                            .Select(
+                                child =>
+                                    new FrequentItem(child.Elements[1], child.Elements[0], child.Attempts,
+                                        _tree.NumberTransactions, source.Attempts)));
+                    
+            }
 
             foreach (var children in node)
                 items.AddRange(
@@ -84,6 +96,7 @@ namespace Apriori.App
                             child =>
                                 new FrequentItem(child.Elements[0], child.Elements[1], child.Attempts,
                                     _tree.NumberTransactions, source.Attempts)));
+            
 
             return items.OrderByDescending(x => x.Attempts).ToArray();
         }
@@ -147,7 +160,7 @@ namespace Apriori.App
                 node = node[key];
             }
 
-            return node.Leafs.FirstOrDefault(x => x.Exist(vector));
+            return node.GetLeaf(new Leaf(vector).GetHashCode());
         }
     }
 }
